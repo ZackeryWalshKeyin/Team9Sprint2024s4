@@ -118,7 +118,7 @@ public class Client {
                     String lastName = scanner.nextLine();
                     System.out.print("Enter phone number: ");
                     String phoneNumber = scanner.nextLine();
-                    //createPassenger(firstName, lastName, phoneNumber);
+                    createPassenger(firstName, lastName, phoneNumber);
                     break;
                 case 3:
                     System.out.print("Enter passenger ID: ");
@@ -130,12 +130,12 @@ public class Client {
                     String newLastName = scanner.nextLine();
                     System.out.print("Enter new phone number: ");
                     String newPhoneNumber = scanner.nextLine();
-                    //updatePassenger(id, newFirstName, newLastName, newPhoneNumber);
+                    updatePassenger(id, newFirstName, newLastName, newPhoneNumber);
                     break;
                 case 4:
                     System.out.print("Enter passenger ID: ");
                     int passengerId = scanner.nextInt();
-                    //deletePassenger(passengerId);
+                    deletePassenger(passengerId);
                     break;
                 case 5:
                     return;
@@ -330,10 +330,6 @@ public class Client {
 
     private static void deleteAircraft(int id) {
         sendRequest("/aircrafts/" + id, "DELETE", null);
-    }
-
-    private static void listAircraft() {
-        listEntities("/aircrafts");
     }
 
     private static void createPassenger(String name, String seatClass) {
