@@ -6,7 +6,7 @@ import java.net.URL;
 import java.util.Scanner;
 
 public class Client {
-    private static final String BASE_URL = "http://localhost:8080/";
+    private static final String BASE_URL = "http://localhost:8080";
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
@@ -207,7 +207,7 @@ public class Client {
 
             switch (choice) {
                 case 1:
-                    listEntities("/aircraft");
+                    listEntities("/aircrafts");
                     break;
                 case 2:
                     System.out.print("Enter aircraft type: ");
@@ -243,31 +243,73 @@ public class Client {
         }
     }
 
+//    private static void listEntities(String endpoint) {
+//        try {
+//            URL url = new URL(BASE_URL + endpoint);
+//            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+//            conn.setRequestMethod("GET");
+//
+//            int responseCode = conn.getResponseCode();
+//            if (responseCode == 200) {
+//                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+//                String inputLine;
+//                StringBuilder response = new StringBuilder();
+//
+//                while ((inputLine = in.readLine()) != null) {
+//                    response.append(inputLine);
+//                }
+//                in.close();
+//
+//                System.out.println("Entities: " + response.toString());
+//            } else {
+//                System.out.println("GET request failed");
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
+
     private static void listEntities(String endpoint) {
+        HttpURLConnection conn = null;
         try {
             URL url = new URL(BASE_URL + endpoint);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn = (HttpURLConnection) url.openConnection();
             conn.setRequestMethod("GET");
 
             int responseCode = conn.getResponseCode();
             if (responseCode == 200) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+                    String inputLine;
+                    StringBuilder response = new StringBuilder();
 
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+
+                    System.out.println("Entities: " + response.toString());
                 }
-                in.close();
-
-                System.out.println("Entities: " + response.toString());
             } else {
-                System.out.println("GET request failed");
+                System.out.println("GET request failed with response code: " + responseCode);
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getErrorStream()))) {
+                    String inputLine;
+                    StringBuilder response = new StringBuilder();
+
+                    while ((inputLine = in.readLine()) != null) {
+                        response.append(inputLine);
+                    }
+
+                    System.out.println("Error response: " + response.toString());
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
         }
     }
+
 
     private static void createCity(String name, String state, int population) {
         try {
