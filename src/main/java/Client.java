@@ -242,33 +242,7 @@ public class Client {
             }
         }
     }
-
-//    private static void listEntities(String endpoint) {
-//        try {
-//            URL url = new URL(BASE_URL + endpoint);
-//            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-//            conn.setRequestMethod("GET");
-//
-//            int responseCode = conn.getResponseCode();
-//            if (responseCode == 200) {
-//                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-//                String inputLine;
-//                StringBuilder response = new StringBuilder();
-//
-//                while ((inputLine = in.readLine()) != null) {
-//                    response.append(inputLine);
-//                }
-//                in.close();
-//
-//                System.out.println("Entities: " + response.toString());
-//            } else {
-//                System.out.println("GET request failed");
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//    }
-
+    
     private static void listEntities(String endpoint) {
         HttpURLConnection conn = null;
         try {
@@ -281,7 +255,7 @@ public class Client {
                 try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
                     String inputLine;
                     StringBuilder response = new StringBuilder();
-
+[]
                     while ((inputLine = in.readLine()) != null) {
                         response.append(inputLine);
                     }
