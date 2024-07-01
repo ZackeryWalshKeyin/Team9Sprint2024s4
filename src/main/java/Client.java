@@ -118,7 +118,7 @@ public class Client {
                     String lastName = scanner.nextLine();
                     System.out.print("Enter phone number: ");
                     String phoneNumber = scanner.nextLine();
-                    createPassenger(firstName, lastName, phoneNumber);
+                    //createPassenger(firstName, lastName, phoneNumber);
                     break;
                 case 3:
                     System.out.print("Enter passenger ID: ");
@@ -130,12 +130,12 @@ public class Client {
                     String newLastName = scanner.nextLine();
                     System.out.print("Enter new phone number: ");
                     String newPhoneNumber = scanner.nextLine();
-                    updatePassenger(id, newFirstName, newLastName, newPhoneNumber);
+                    //updatePassenger(id, newFirstName, newLastName, newPhoneNumber);
                     break;
                 case 4:
                     System.out.print("Enter passenger ID: ");
                     int passengerId = scanner.nextInt();
-                    deletePassenger(passengerId);
+                    //deletePassenger(passengerId);
                     break;
                 case 5:
                     return;
@@ -167,7 +167,7 @@ public class Client {
                     String name = scanner.nextLine();
                     System.out.print("Enter airport code: ");
                     String code = scanner.nextLine();
-                    createAirport(name, code);
+                    //createAirport(name, code);
                     break;
                 case 3:
                     System.out.print("Enter airport ID: ");
@@ -177,12 +177,12 @@ public class Client {
                     String newName = scanner.nextLine();
                     System.out.print("Enter new airport code: ");
                     String newCode = scanner.nextLine();
-                    updateAirport(id, newName, newCode);
+                    //updateAirport(id, newName, newCode);
                     break;
                 case 4:
                     System.out.print("Enter airport ID: ");
                     int airportId = scanner.nextInt();
-                    deleteAirport(airportId);
+                    //deleteAirport(airportId);
                     break;
                 case 5:
                     return;
@@ -216,7 +216,7 @@ public class Client {
                     String airlineName = scanner.nextLine();
                     System.out.print("Enter number of passengers: ");
                     int numberOfPassengers = scanner.nextInt();
-                    createAircraft(type, airlineName, numberOfPassengers);
+                    //createAircraft(type, airlineName, numberOfPassengers);
                     break;
                 case 3:
                     System.out.print("Enter aircraft ID: ");
@@ -228,12 +228,12 @@ public class Client {
                     String newAirlineName = scanner.nextLine();
                     System.out.print("Enter new number of passengers: ");
                     int newNumberOfPassengers = scanner.nextInt();
-                    updateAircraft(id, newType, newAirlineName, newNumberOfPassengers);
+                    //updateAircraft(id, newType, newAirlineName, newNumberOfPassengers);
                     break;
                 case 4:
                     System.out.print("Enter aircraft ID: ");
                     int aircraftId = scanner.nextInt();
-                    deleteAircraft(aircraftId);
+                    //deleteAircraft(aircraftId);
                     break;
                 case 5:
                     return;
@@ -242,29 +242,45 @@ public class Client {
             }
         }
     }
-    
-    private static void listEntities(String endpoint) {
-        HttpURLConnection conn = null;
+
+    private static void sendRequest(String endpoint, String method, String json) {
         try {
             URL url = new URL(BASE_URL + endpoint);
-            conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("GET");
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod(method);
+            conn.setRequestProperty("Content-Type", "application/json; utf-8");
+            conn.setDoOutput(true);
 
+            if (json != null && !json.isEmpty()) {
+                try (OutputStream os = conn.getOutputStream()) {
+                    byte[] input = json.getBytes("utf-8");
+                    os.write(input, 0, input.length);
+                }
+            }
+
+            handleResponse(conn);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void handleResponse(HttpURLConnection conn) {
+        try {
             int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
-                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()))) {
+            if (responseCode == 200 || responseCode == 201) { // 201 for successful POST
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream(), "utf-8"))) {
                     String inputLine;
                     StringBuilder response = new StringBuilder();
-[]
+
                     while ((inputLine = in.readLine()) != null) {
                         response.append(inputLine);
                     }
 
-                    System.out.println("Entities: " + response.toString());
+                    System.out.println("Response: " + response.toString());
                 }
             } else {
-                System.out.println("GET request failed with response code: " + responseCode);
-                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getErrorStream()))) {
+                System.out.println("Request failed with response code: " + responseCode);
+                try (BufferedReader in = new BufferedReader(new InputStreamReader(conn.getErrorStream(), "utf-8"))) {
                     String inputLine;
                     StringBuilder response = new StringBuilder();
 
@@ -284,308 +300,23 @@ public class Client {
         }
     }
 
-
-    private static void createCity(String name, String state, int population) {
-        try {
-            URL url = new URL(BASE_URL + "/cities");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json; utf-8");
-            conn.setDoOutput(true);
-
-            String cityJson = String.format("{\"name\":\"%s\", \"state\":\"%s\", \"population\":%d}", name, state, population);
-            try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = cityJson.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
-
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-
-                System.out.println("Created city with ID: " + response.toString());
-            } else {
-                System.out.println("POST request failed");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private static void createCity(String city, String province, int population) {
+        String cityJson = String.format("{\"city\":\"%s\", \"province\":\"%s\", \"population\":%d}", city, province, population);
+        sendRequest("/cities", "POST", cityJson);
     }
 
-    private static void updateCity(int id, String name, String state, int population) {
-        try {
-            URL url = new URL(BASE_URL + "/cities/" + id);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("PUT");
-            conn.setRequestProperty("Content-Type", "application/json; utf-8");
-            conn.setDoOutput(true);
-
-            String cityJson = String.format("{\"id\":%d, \"name\":\"%s\", \"state\":\"%s\", \"population\":%d}", id, name, state, population);
-            try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = cityJson.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
-
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
-                System.out.println("Updated city with ID: " + id);
-            } else {
-                System.out.println("PUT request failed");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private static void updateCity(int id, String name, String province, int population) {
+        String cityJson = String.format("{\"id\":%d, \"name\":\"%s\", \"province\":\"%s\", \"population\":%d}", id, name, province, population);
+        sendRequest("/cities/" + id, "PUT", cityJson);
     }
 
     private static void deleteCity(int id) {
-        try {
-            URL url = new URL(BASE_URL + "/cities/" + id);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("DELETE");
-
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
-                System.out.println("Deleted city with ID: " + id);
-            } else {
-                System.out.println("DELETE request failed");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        sendRequest("/cities/" + id, "DELETE", null);
     }
 
-    private static void createPassenger(String firstName, String lastName, String phoneNumber) {
-        try {
-            URL url = new URL(BASE_URL + "/passengers");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json; utf-8");
-            conn.setDoOutput(true);
-
-            String passengerJson = String.format("{\"firstName\":\"%s\", \"lastName\":\"%s\", \"phoneNumber\":\"%s\"}", firstName, lastName, phoneNumber);
-            try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = passengerJson.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
-
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-
-                System.out.println("Created passenger with ID: " + response.toString());
-            } else {
-                System.out.println("POST request failed");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    private static void listEntities(String endpoint) {
+        sendRequest(endpoint, "GET", null);
     }
 
-    private static void updatePassenger(int id, String firstName, String lastName, String phoneNumber) {
-        try {
-            URL url = new URL(BASE_URL + "/passengers/" + id);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("PUT");
-            conn.setRequestProperty("Content-Type", "application/json; utf-8");
-            conn.setDoOutput(true);
 
-            String passengerJson = String.format("{\"id\":%d, \"firstName\":\"%s\", \"lastName\":\"%s\", \"phoneNumber\":\"%s\"}", id, firstName, lastName, phoneNumber);
-            try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = passengerJson.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
-
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
-                System.out.println("Updated passenger with ID: " + id);
-            } else {
-                System.out.println("PUT request failed");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void deletePassenger(int id) {
-        try {
-            URL url = new URL(BASE_URL + "/passengers/" + id);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("DELETE");
-
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
-                System.out.println("Deleted passenger with ID: " + id);
-            } else {
-                System.out.println("DELETE request failed");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void createAirport(String name, String code) {
-        try {
-            URL url = new URL(BASE_URL + "/airports");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json; utf-8");
-            conn.setDoOutput(true);
-
-            String airportJson = String.format("{\"name\":\"%s\", \"code\":\"%s\"}", name, code);
-            try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = airportJson.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
-
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-
-                System.out.println("Created airport with ID: " + response.toString());
-            } else {
-                System.out.println("POST request failed");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void updateAirport(int id, String name, String code) {
-        try {
-            URL url = new URL(BASE_URL + "/airports/" + id);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("PUT");
-            conn.setRequestProperty("Content-Type", "application/json; utf-8");
-            conn.setDoOutput(true);
-
-            String airportJson = String.format("{\"id\":%d, \"name\":\"%s\", \"code\":\"%s\"}", id, name, code);
-            try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = airportJson.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
-
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
-                System.out.println("Updated airport with ID: " + id);
-            } else {
-                System.out.println("PUT request failed");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void deleteAirport(int id) {
-        try {
-            URL url = new URL(BASE_URL + "/airports/" + id);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("DELETE");
-
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
-                System.out.println("Deleted airport with ID: " + id);
-            } else {
-                System.out.println("DELETE request failed");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void createAircraft(String type, String airlineName, int numberOfPassengers) {
-        try {
-            URL url = new URL(BASE_URL + "/aircraft");
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type", "application/json; utf-8");
-            conn.setDoOutput(true);
-
-            String aircraftJson = String.format("{\"type\":\"%s\", \"airlineName\":\"%s\", \"numberOfPassengers\":%d}", type, airlineName, numberOfPassengers);
-            try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = aircraftJson.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
-
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
-                BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-
-                System.out.println("Created aircraft with ID: " + response.toString());
-            } else {
-                System.out.println("POST request failed");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void updateAircraft(int id, String type, String airlineName, int numberOfPassengers) {
-        try {
-            URL url = new URL(BASE_URL + "/aircraft/" + id);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("PUT");
-            conn.setRequestProperty("Content-Type", "application/json; utf-8");
-            conn.setDoOutput(true);
-
-            String aircraftJson = String.format("{\"id\":%d, \"type\":\"%s\", \"airlineName\":\"%s\", \"numberOfPassengers\":%d}", id, type, airlineName, numberOfPassengers);
-            try (OutputStream os = conn.getOutputStream()) {
-                byte[] input = aircraftJson.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
-
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
-                System.out.println("Updated aircraft with ID: " + id);
-            } else {
-                System.out.println("PUT request failed");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void deleteAircraft(int id) {
-        try {
-            URL url = new URL(BASE_URL + "/aircraft/" + id);
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("DELETE");
-
-            int responseCode = conn.getResponseCode();
-            if (responseCode == 200) {
-                System.out.println("Deleted aircraft with ID: " + id);
-            } else {
-                System.out.println("DELETE request failed");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }
