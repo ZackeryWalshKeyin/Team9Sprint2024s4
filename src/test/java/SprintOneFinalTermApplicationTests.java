@@ -3,23 +3,6 @@ package com.keyin.sprintOneFinalTerm;
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.boot.test.context.SpringBootTest;
-import com.keyin.sprintOneFinalTerm.controller.AircraftController;
-import com.keyin.sprintOneFinalTerm.controller.PassengerController;
-import com.keyin.sprintOneFinalTerm.controller.CityController;
-import com.keyin.sprintOneFinalTerm.service.PassengerService;
-import com.keyin.sprintOneFinalTerm.service.AircraftService;
-import com.keyin.sprintOneFinalTerm.service.CityService;
-import com.keyin.sprintOneFinalTerm.model.City;
-import com.keyin.sprintOneFinalTerm.model.Passenger;
-import com.keyin.sprintOneFinalTerm.model.Airport;
-
-
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
