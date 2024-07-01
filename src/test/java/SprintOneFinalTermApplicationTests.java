@@ -2,7 +2,6 @@ package com.keyin.sprintOneFinalTerm;
 
 import static org.mockito.Mockito.*;
 import static org.junit.jupiter.api.Assertions.*;
-
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
