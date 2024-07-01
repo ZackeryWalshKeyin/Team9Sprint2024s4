@@ -75,7 +75,7 @@ public class Client {
                     scanner.nextLine(); // consume newline
                     System.out.print("Enter new city name: ");
                     String newName = scanner.nextLine();
-                    System.out.print("Enter new state: ");
+                    System.out.print("Enter new province: ");
                     String newState = scanner.nextLine();
                     System.out.print("Enter new population: ");
                     int newPopulation = scanner.nextInt();
@@ -305,8 +305,8 @@ public class Client {
         sendRequest("/cities", "POST", cityJson);
     }
 
-    private static void updateCity(int id, String name, String province, int population) {
-        String cityJson = String.format("{\"id\":%d, \"name\":\"%s\", \"province\":\"%s\", \"population\":%d}", id, name, province, population);
+    private static void updateCity(int id, String city, String province, int population) {
+        String cityJson = String.format("{\"id\":%d, \"city\":\"%s\", \"province\":\"%s\", \"population\":%d}", id, city, province, population);
         sendRequest("/cities/" + id, "PUT", cityJson);
     }
 
