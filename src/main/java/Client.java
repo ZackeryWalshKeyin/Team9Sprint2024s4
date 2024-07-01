@@ -4,6 +4,7 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
+
 public class Client {
     private static final String BASE_URL = "http://localhost:8080/";
 
@@ -62,7 +63,7 @@ public class Client {
                 case 2:
                     System.out.print("Enter city name: ");
                     String name = scanner.nextLine();
-                    System.out.print("Enter state: ");
+                    System.out.print("Enter province: ");
                     String state = scanner.nextLine();
                     System.out.print("Enter population: ");
                     int population = scanner.nextInt();
