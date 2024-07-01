@@ -14,9 +14,8 @@ public class Client {
             System.out.println("Main Menu:");
             System.out.println("1. Manage Cities");
             System.out.println("2. Manage Passengers");
-            System.out.println("3. Manage Airports");
-            System.out.println("4. Manage Aircraft");
-            System.out.println("5. Exit");
+            System.out.println("3. Manage Aircraft");
+            System.out.println("4. Exit");
             System.out.print("Choose an option: ");
 
             int choice = scanner.nextInt();
@@ -30,12 +29,9 @@ public class Client {
                     managePassengers(scanner);
                     break;
                 case 3:
-                    manageAirports(scanner);
-                    break;
-                case 4:
                     manageAircraft(scanner);
                     break;
-                case 5:
+                case 4:
                     return;
                 default:
                     System.out.println("Invalid option. Try again.");
@@ -136,53 +132,6 @@ public class Client {
                     System.out.print("Enter passenger ID: ");
                     int passengerId = scanner.nextInt();
                     deletePassenger(passengerId);
-                    break;
-                case 5:
-                    return;
-                default:
-                    System.out.println("Invalid option. Try again.");
-            }
-        }
-    }
-
-    private static void manageAirports(Scanner scanner) {
-        while (true) {
-            System.out.println("Airports Menu:");
-            System.out.println("1. List airports");
-            System.out.println("2. Create airport");
-            System.out.println("3. Update airport");
-            System.out.println("4. Delete airport");
-            System.out.println("5. Return to main menu");
-            System.out.print("Choose an option: ");
-
-            int choice = scanner.nextInt();
-            scanner.nextLine(); // consume newline
-
-            switch (choice) {
-                case 1:
-                    listEntities("/airports");
-                    break;
-                case 2:
-                    System.out.print("Enter airport name: ");
-                    String name = scanner.nextLine();
-                    System.out.print("Enter airport code: ");
-                    String code = scanner.nextLine();
-                    //createAirport(name, code);
-                    break;
-                case 3:
-                    System.out.print("Enter airport ID: ");
-                    int id = scanner.nextInt();
-                    scanner.nextLine(); // consume newline
-                    System.out.print("Enter new airport name: ");
-                    String newName = scanner.nextLine();
-                    System.out.print("Enter new airport code: ");
-                    String newCode = scanner.nextLine();
-                    //updateAirport(id, newName, newCode);
-                    break;
-                case 4:
-                    System.out.print("Enter airport ID: ");
-                    int airportId = scanner.nextInt();
-                    //deleteAirport(airportId);
                     break;
                 case 5:
                     return;
@@ -332,13 +281,13 @@ public class Client {
         sendRequest("/aircrafts/" + id, "DELETE", null);
     }
 
-    private static void createPassenger(String name, String seatClass) {
-        String passengerJson = String.format("{\"name\":\"%s\", \"seatClass\":\"%s\"}", name, seatClass);
+    private static void createPassenger(String firstName, String lastName, String phoneNumber) {
+        String passengerJson = String.format("{\"firstName\":\"%s\", \"lastName\":\"%s\", \"phoneNumber\":\"%s\"}", firstName, lastName, phoneNumber);
         sendRequest("/passengers", "POST", passengerJson);
     }
 
-    private static void updatePassenger(int id, String name, String seatClass) {
-        String passengerJson = String.format("{\"id\":%d, \"name\":\"%s\", \"seatClass\":\"%s\"}", id, name, seatClass);
+    private static void updatePassenger(int id, String firstName, String lastName, String phoneNumber) {
+        String passengerJson = String.format("{\"id\":%d, \"firstName\":\"%s\", \"lastName\":\"%s\", \"phoneNumber\":\"%s\"}", id, firstName, lastName, phoneNumber);
         sendRequest("/passengers/" + id, "PUT", passengerJson);
     }
 
