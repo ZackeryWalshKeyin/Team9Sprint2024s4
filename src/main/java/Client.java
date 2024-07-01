@@ -15,7 +15,8 @@ public class Client {
             System.out.println("1. Manage Cities");
             System.out.println("2. Manage Passengers");
             System.out.println("3. Manage Aircraft");
-            System.out.println("4. Exit");
+            System.out.println("4. Manage Airport");
+            System.out.println("5. Exit");
             System.out.print("Choose an option: ");
 
             int choice = scanner.nextInt();
@@ -32,6 +33,9 @@ public class Client {
                     manageAircraft(scanner);
                     break;
                 case 4:
+                    manageAirport(scanner);
+                    break;
+                case 5:
                     return;
                 default:
                     System.out.println("Invalid option. Try again.");
@@ -72,10 +76,10 @@ public class Client {
                     System.out.print("Enter new city name: ");
                     String newName = scanner.nextLine();
                     System.out.print("Enter new province: ");
-                    String newState = scanner.nextLine();
+                    String newProvince = scanner.nextLine();
                     System.out.print("Enter new population: ");
                     int newPopulation = scanner.nextInt();
-                    updateCity(id, newName, newState, newPopulation);
+                    updateCity(id, newName, newProvince, newPopulation);
                     break;
                 case 4:
                     System.out.print("Enter city ID: ");
