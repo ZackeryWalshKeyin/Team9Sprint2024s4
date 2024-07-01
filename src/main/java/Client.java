@@ -346,8 +346,4 @@ public class Client {
         sendRequest("/passengers/" + id, "DELETE", null);
     }
 
-    private static void listPassengers() {
-        listEntities("/passengers");
-    }
-
 }
