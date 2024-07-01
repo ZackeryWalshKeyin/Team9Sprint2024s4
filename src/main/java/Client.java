@@ -216,7 +216,7 @@ public class Client {
                     String airlineName = scanner.nextLine();
                     System.out.print("Enter number of passengers: ");
                     int numberOfPassengers = scanner.nextInt();
-                    //createAircraft(type, airlineName, numberOfPassengers);
+                    createAircraft(type, airlineName, numberOfPassengers);
                     break;
                 case 3:
                     System.out.print("Enter aircraft ID: ");
@@ -228,12 +228,12 @@ public class Client {
                     String newAirlineName = scanner.nextLine();
                     System.out.print("Enter new number of passengers: ");
                     int newNumberOfPassengers = scanner.nextInt();
-                    //updateAircraft(id, newType, newAirlineName, newNumberOfPassengers);
+                    updateAircraft(id, newType, newAirlineName, newNumberOfPassengers);
                     break;
                 case 4:
                     System.out.print("Enter aircraft ID: ");
                     int aircraftId = scanner.nextInt();
-                    //deleteAircraft(aircraftId);
+                    deleteAircraft(aircraftId);
                     break;
                 case 5:
                     return;
@@ -318,5 +318,40 @@ public class Client {
         sendRequest(endpoint, "GET", null);
     }
 
+    private static void createAircraft(String type, String airlineName, int passengerCapacity) {
+        String aircraftJson = String.format("{\"type\":\"%s\", \"airlineName\":\"%s\", \"passengerCapacity\":%d}", type, airlineName, passengerCapacity);
+        sendRequest("/aircrafts", "POST", aircraftJson);
+    }
+
+    private static void updateAircraft(int id, String type, String airlineName, int passengerCapacity) {
+        String aircraftJson = String.format("{\"id\":%d, \"type\":\"%s\", \"airlineName\":\"%s\", \"passengerCapacity\":%d}", id, type, airlineName, passengerCapacity);
+        sendRequest("/aircrafts/" + id, "PUT", aircraftJson);
+    }
+
+    private static void deleteAircraft(int id) {
+        sendRequest("/aircrafts/" + id, "DELETE", null);
+    }
+
+    private static void listAircraft() {
+        listEntities("/aircrafts");
+    }
+
+    private static void createPassenger(String name, String seatClass) {
+        String passengerJson = String.format("{\"name\":\"%s\", \"seatClass\":\"%s\"}", name, seatClass);
+        sendRequest("/passengers", "POST", passengerJson);
+    }
+
+    private static void updatePassenger(int id, String name, String seatClass) {
+        String passengerJson = String.format("{\"id\":%d, \"name\":\"%s\", \"seatClass\":\"%s\"}", id, name, seatClass);
+        sendRequest("/passengers/" + id, "PUT", passengerJson);
+    }
+
+    private static void deletePassenger(int id) {
+        sendRequest("/passengers/" + id, "DELETE", null);
+    }
+
+    private static void listPassengers() {
+        listEntities("/passengers");
+    }
 
 }
