@@ -4,6 +4,8 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 public class Client {
     private static final String BASE_URL = "http://localhost:8080";
@@ -11,12 +13,14 @@ public class Client {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         while (true) {
+            System.out.println("");
             System.out.println("Main Menu:");
             System.out.println("1. Manage Cities");
             System.out.println("2. Manage Passengers");
             System.out.println("3. Manage Aircraft");
             System.out.println("4. Manage Airport");
             System.out.println("5. Exit");
+            System.out.println("");
             System.out.print("Choose an option: ");
 
             int choice = scanner.nextInt();
@@ -45,12 +49,14 @@ public class Client {
 
     private static void manageCities(Scanner scanner) {
         while (true) {
+            System.out.println("");
             System.out.println("Cities Menu:");
             System.out.println("1. List cities");
             System.out.println("2. Create city");
             System.out.println("3. Update city");
             System.out.println("4. Delete city");
             System.out.println("5. Return to main menu");
+            System.out.println("");
             System.out.print("Choose an option: ");
 
             int choice = scanner.nextInt();
@@ -96,12 +102,14 @@ public class Client {
 
     private static void managePassengers(Scanner scanner) {
         while (true) {
+            System.out.println("");
             System.out.println("Passengers Menu:");
             System.out.println("1. List passengers");
             System.out.println("2. Create passenger");
             System.out.println("3. Update passenger");
             System.out.println("4. Delete passenger");
             System.out.println("5. Return to main menu");
+            System.out.println("");
             System.out.print("Choose an option: ");
 
             int choice = scanner.nextInt();
@@ -147,12 +155,14 @@ public class Client {
 
     private static void manageAircraft(Scanner scanner) {
         while (true) {
+            System.out.println("");
             System.out.println("Aircraft Menu:");
             System.out.println("1. List aircraft");
             System.out.println("2. Create aircraft");
             System.out.println("3. Update aircraft");
             System.out.println("4. Delete aircraft");
             System.out.println("5. Return to main menu");
+            System.out.println("");
             System.out.print("Choose an option: ");
 
             int choice = scanner.nextInt();
@@ -187,6 +197,59 @@ public class Client {
                     System.out.print("Enter aircraft ID: ");
                     int aircraftId = scanner.nextInt();
                     deleteAircraft(aircraftId);
+                    break;
+                case 5:
+                    return;
+                default:
+                    System.out.println("Invalid option. Try again.");
+            }
+        }
+    }
+
+    private static void manageAirport(Scanner scanner) {
+        while (true) {
+            System.out.println("");
+            System.out.println("Airports Menu:");
+            System.out.println("1. List airports");
+            System.out.println("2. Create airport");
+            System.out.println("3. Update airport");
+            System.out.println("4. Delete airport");
+            System.out.println("5. Return to main menu");
+            System.out.println("");
+            System.out.print("Choose an option: ");
+
+            int choice = scanner.nextInt();
+            scanner.nextLine(); // consume newline
+
+            switch (choice) {
+                case 1:
+                    listEntities("/airports");
+                    break;
+                case 2:
+                    System.out.print("Enter airport name: ");
+                    String name = scanner.nextLine();
+                    System.out.print("Enter airport code: ");
+                    String code = scanner.nextLine();
+                    System.out.print("Enter city ID: ");
+                    int cityId = scanner.nextInt();
+                    createAirport(name, code, cityId);
+                    break;
+                case 3:
+                    System.out.print("Enter airport ID: ");
+                    int id = scanner.nextInt();
+                    scanner.nextLine(); // consume newline
+                    System.out.print("Enter new airport name: ");
+                    String newName = scanner.nextLine();
+                    System.out.print("Enter new airport code: ");
+                    String newCode = scanner.nextLine();
+                    System.out.print("Enter new city ID: ");
+                    int newCityId = scanner.nextInt();
+                    updateAirport(id, newName, newCode, newCityId);
+                    break;
+                case 4:
+                    System.out.print("Enter airport ID: ");
+                    int airportId = scanner.nextInt();
+                    deleteAirport(airportId);
                     break;
                 case 5:
                     return;
@@ -253,6 +316,7 @@ public class Client {
         }
     }
 
+// Cities Methods
     private static void createCity(String city, String province, int population) {
         String cityJson = String.format("{\"city\":\"%s\", \"province\":\"%s\", \"population\":%d}", city, province, population);
         sendRequest("/cities", "POST", cityJson);
@@ -271,6 +335,7 @@ public class Client {
         sendRequest(endpoint, "GET", null);
     }
 
+// Aircraft Methods
     private static void createAircraft(String type, String airlineName, int passengerCapacity) {
         String aircraftJson = String.format("{\"type\":\"%s\", \"airlineName\":\"%s\", \"passengerCapacity\":%d}", type, airlineName, passengerCapacity);
         sendRequest("/aircrafts", "POST", aircraftJson);
@@ -285,6 +350,7 @@ public class Client {
         sendRequest("/aircrafts/" + id, "DELETE", null);
     }
 
+// Passenger Methods
     private static void createPassenger(String firstName, String lastName, String phoneNumber) {
         String passengerJson = String.format("{\"firstName\":\"%s\", \"lastName\":\"%s\", \"phoneNumber\":\"%s\"}", firstName, lastName, phoneNumber);
         sendRequest("/passengers", "POST", passengerJson);
@@ -297,6 +363,21 @@ public class Client {
 
     private static void deletePassenger(int id) {
         sendRequest("/passengers/" + id, "DELETE", null);
+    }
+
+// Airport Methods
+    private static void createAirport(String name, String code, int cityId) {
+        String airportJson = String.format("{\"name\":\"%s\", \"code\":\"%s\", \"city\":{\"id\":%d}}", name, code, cityId);
+        sendRequest("/airports", "POST", airportJson);
+    }
+
+    private static void updateAirport(int id, String name, String code, int cityId) {
+        String airportJson = String.format("{\"id\":%d, \"name\":\"%s\", \"code\":\"%s\", \"city\":{\"id\":%d}}", id, name, code, cityId);
+        sendRequest("/airports/" + id, "PUT", airportJson);
+    }
+
+    private static void deleteAirport(int id) {
+        sendRequest("/airports/" + id, "DELETE", null);
     }
 
 }

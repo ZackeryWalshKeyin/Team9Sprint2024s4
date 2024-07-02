@@ -1,73 +1,96 @@
-package com.keyin.sprintOneFinalTerm;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 
-import static org.mockito.Mockito.*;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
+
 import static org.junit.jupiter.api.Assertions.*;
-import org.springframework.web.client.RestTemplate;
-import org.springframework.http.ResponseEntity;
-import org.springframework.http.HttpStatus;
-import java.util.ArrayList;
-import java.util.List;
+import static org.mockito.Mockito.*;
 
-
-@SpringBootTest
-public class SprintOneFinalTermApplicationTests {
-    @Mock
-    private AircraftController aircraftController;
-
-    @Mock
-    private AirportController airportController;
-
-    @Mock
-    private CityController cityController;
-
-    @Mock
-    private PassengerController passengerController;
-
-    @InjectMocks
-    private AircraftService aircraftService;
-
-    @InjectMocks
-    private AirportService airportService;
-
-    @InjectMocks
-    private CityService cityService;
-
-    @InjectMocks
-    private PassengerService passengerService;
+public class ClientTest {
+    private Client client;
+    private HttpURLConnection mockConnection;
 
     @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
+    public void setUp() throws Exception {
+        client = new Client();
+
+        // Mocking URL and HttpURLConnection
+        URL mockUrl = mock(URL.class);
+        mockConnection = mock(HttpURLConnection.class);
+
+        // Mock URL.openConnection() to return our mock HttpURLConnection
+        when(mockUrl.openConnection()).thenReturn(mockConnection);
     }
 
     @Test
-    public void testGetAirport() {
-        Airport airport = new Airport(1, "St John's Airport");
-        when(airportController.findById(1)).thenReturn(Optional.of(airport));
+    public void testCreateAirport() throws Exception {
+        // Mock the response code and input stream
+        when(mockConnection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_CREATED);
+        InputStream mockInputStream = new ByteArrayInputStream("{\"id\":1,\"name\":\"Test Airport\",\"code\":\"TST\",\"city\":{\"id\":1}}".getBytes());
+        when(mockConnection.getInputStream()).thenReturn(mockInputStream);
 
-        Airport result = airportService.getAirportById(1);
-        assertNotNull(result);
-        assertEquals("St John's Airport", result.getName());
+        // Invoke the method
+        client.createAirport("Test Airport", "TST", 1);
+
+        // Verify the connection and response handling
+        verify(mockConnection, times(1)).setRequestMethod("POST");
+        verify(mockConnection, times(1)).setRequestProperty("Content-Type", "application/json; utf-8");
+        verify(mockConnection, times(1)).setDoOutput(true);
+        assertNotNull(mockConnection.getInputStream());
     }
 
     @Test
-    public void testGetCity() {
-        City city = new City(1, "St John's");
-        when(cityController.findById(1)).thenReturn(Optional.of(city));
+    public void testUpdateAirport() throws Exception {
+        // Mock the response code and input stream
+        when(mockConnection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
+        InputStream mockInputStream = new ByteArrayInputStream("{\"id\":1,\"name\":\"Updated Airport\",\"code\":\"UPD\",\"city\":{\"id\":1}}".getBytes());
+        when(mockConnection.getInputStream()).thenReturn(mockInputStream);
 
-        City result = cityService.getCityById(1);
-        assertNotNull(result);
-        assertEquals("St John's", result.getName());
+        // Invoke the method
+        client.updateAirport(1, "Updated Airport", "UPD", 1);
+
+        // Verify the connection and response handling
+        verify(mockConnection, times(1)).setRequestMethod("PUT");
+        verify(mockConnection, times(1)).setRequestProperty("Content-Type", "application/json; utf-8");
+        verify(mockConnection, times(1)).setDoOutput(true);
+        assertNotNull(mockConnection.getInputStream());
     }
 
     @Test
-    public void testGetPassenger() {
-        Passenger passenger = new Passenger(1, "John Doe");
-        when(passengerController.findById(1)).thenReturn(Optional.of(passenger));
+    public void testDeleteAirport() throws Exception {
+        // Mock the response code and input stream
+        when(mockConnection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
+        InputStream mockInputStream = new ByteArrayInputStream("".getBytes());
+        when(mockConnection.getInputStream()).thenReturn(mockInputStream);
 
-        Passenger result = passengerService.getPassengerById(1);
-        assertNotNull(result);
-        assertEquals("John Doe", result.getName());
+        // Invoke the method
+        client.deleteAirport(1);
+
+        // Verify the connection and response handling
+        verify(mockConnection, times(1)).setRequestMethod("DELETE");
+        verify(mockConnection, times(1)).setRequestProperty("Content-Type", "application/json; utf-8");
+        verify(mockConnection, times(1)).setDoOutput(true);
+        assertNotNull(mockConnection.getInputStream());
     }
 
+    @Test
+    public void testListAirports() throws Exception {
+        // Mock the response code and input stream
+        when(mockConnection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
+        InputStream mockInputStream = new ByteArrayInputStream("[{\"id\":1,\"name\":\"Airport 1\",\"code\":\"A1\",\"city\":{\"id\":1}}]".getBytes());
+        when(mockConnection.getInputStream()).thenReturn(mockInputStream);
+
+        // Invoke the method
+        client.listEntities("/airports");
+
+        // Verify the connection and response handling
+        verify(mockConnection, times(1)).setRequestMethod("GET");
+        verify(mockConnection, times(1)).setRequestProperty("Content-Type", "application/json; utf-8");
+        verify(mockConnection, times(1)).setDoOutput(true);
+        assertNotNull(mockConnection.getInputStream());
+    }
 }
