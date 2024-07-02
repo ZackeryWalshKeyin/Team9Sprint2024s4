@@ -4,8 +4,6 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Scanner;
-import org.json.JSONArray;
-import org.json.JSONObject;
 
 public class Client {
     private static final String BASE_URL = "http://localhost:8080";
